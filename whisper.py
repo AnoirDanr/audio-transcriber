@@ -21,15 +21,13 @@ def split_audio(input_file, chunk_duration=300):
     return chunks
 
 def transcript_chunks(chunks, model:WhisperModel,chunk_duration=300):
-
     for i,chunk in enumerate(chunks):
         offset = i*chunk_duration
-
         for segment in whisper_model.transcribe(chunk, language="it",beam_size=1)[0]:
             print(f"[{format_hms(segment.start+offset) } -> {format_hms(segment.end+offset)}] {segment.text}")
 
 
-   
+
 
 
 assert len(sys.argv) == 2, "transcript [nome_file_audio]"
@@ -47,13 +45,3 @@ file_name = sys.argv[1]
 whisper_model = WhisperModel(model_size_or_path="small",device="cpu")
 chunks = split_audio(file_name)
 transcript_chunks(chunks,model=whisper_model)
-
-
-'''
-
-
-
-for segment in whisper_model.transcribe("lezione1.mp3", language="it",beam_size=5)[0]:
-    print(f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}")
-
-'''
