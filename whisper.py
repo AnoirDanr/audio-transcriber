@@ -20,17 +20,19 @@ def split_audio(input_file, chunk_duration=300):
         chunks.append(output)
     return chunks
 
-def transcript_chunks(chunks, model:WhisperModel,chunk_duration=300):
-    for i,chunk in enumerate(chunks):
-        offset = i*chunk_duration
-        for segment in whisper_model.transcribe(chunk, language="it",beam_size=1)[0]:
-            print(f"[{format_hms(segment.start+offset) } -> {format_hms(segment.end+offset)}] {segment.text}")
+def transcript_chunks(chunks, model:WhisperModel,file_name:str,chunk_duration=300):
+    with open(file_name,'a') as f:
+        for i,chunk in enumerate(chunks):
+            offset = i*chunk_duration
+            for segment in model.transcribe(chunk, language="it",beam_size=1)[0]:
+                f.write(segment.text + "\n")
+                print(f"[{format_hms(segment.start+offset) } -> {format_hms(segment.end+offset)}] {segment.text}")
 
 
 
 
 
-assert len(sys.argv) == 2, "transcript [nome_file_audio]"
+assert len(sys.argv) == 3, "transcript [nome_file_audio] [nome_file_trascritto]"
 
 
 def format_hms(seconds: float) -> str:
@@ -41,7 +43,18 @@ def format_hms(seconds: float) -> str:
 
 file_name = sys.argv[1]
 
+file_name_output = sys.argv[2]
+
+
 
 whisper_model = WhisperModel(model_size_or_path="small",device="cpu")
 chunks = split_audio(file_name)
-transcript_chunks(chunks,model=whisper_model)
+
+
+with open(file_name_output , 'w') as f:
+    f.write("# Trascrizione lezione\n\n")
+    
+transcript_chunks(chunks,model=whisper_model,file_name=file_name_output)
+
+
+
